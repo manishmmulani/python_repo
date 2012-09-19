@@ -1,0 +1,1 @@
+git is a decentralized version control system. We get a local repository of our own to stage the commits.
