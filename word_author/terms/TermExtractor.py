@@ -1,12 +1,21 @@
 #print __name__  outputs terms.TermExtractor
 #print __file__  outputs terms/TermExtrator.py
-
+'''
+Usage :
+	import terms.TermExtractor as t
+	t.extract("Hi! I'm a programmer. I'm learning Scala-1.2 Version 4.2.5")
+Output :
+	['Hi', 'Im', 'programmer', 'Im', 'learning', 'Scala 12', 'Version', '425']
+'''
 from __future__ import absolute_import
 
 import re
 from stopwords import allStopWords
 
 def extract(phrase):
+	"""
+	Given the title of the paper, extracts the title terms.
+	"""
 	list_of_words = phrase.split()
 
 	# replace hiphens with " "
