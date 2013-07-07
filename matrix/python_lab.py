@@ -98,7 +98,7 @@ representation_dict = {first + second*base + third*base*base : [third, second, f
 ## Task 26
 d = {0:1000.0, 1:1200.50, 2:990}
 names = ['Larry', 'Curly', 'Moe']
-listdict2dict = {L[id]:d[id] for id in range(len(L)) if id in d}
+listdict2dict = {names[id]:d[id] for id in range(len(names)) if id in d}
 
 ## Task 27
 def nextInts(L): return [x+1 for x in L]
