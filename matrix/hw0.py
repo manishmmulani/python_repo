@@ -15,7 +15,7 @@ def myLists(L): return [list(range(1,x+1)) for x in L]
 
 
 ## Problem 3
-def myFunctionComposition(f, g): {x:g[f[x]] for x in f.keys()}
+def myFunctionComposition(f, g): return {x:g[f[x]] for x in f.keys()}
 
 
 ## Problem 4
@@ -29,7 +29,7 @@ complex_addition_d = 0.001 + 9j
 
 
 ## Problem 5
-GF2_sum_1 = one
+GF2_sum_1 = 1
 GF2_sum_2 = 0
 GF2_sum_3 = 0
 
