@@ -1,35 +1,38 @@
 def getitem(v,d):
     "Returns the value of entry d in v"
     assert d in v.D
-    pass
+    return v.f[d] if d in v.f else 0
 
 def setitem(v,d,val):
     "Set the element of v with label d to be val"
     assert d in v.D
-    pass
+    v.f[d]=val
 
 def equal(u,v):
     "Returns true iff u is equal to v"
     assert u.D == v.D
-    pass
+    for key in set(u.f.keys()).union(set(v.f.keys())):
+        if (getitem(u, key) != getitem(v, key)):
+            return False
+    return True
 
 def add(u,v):
     "Returns the sum of the two vectors"
     assert u.D == v.D
-    pass
+    return Vec(u.D, {key:getitem(u, key) + getitem(v, key) for key in set(u.f.keys()).union(set(v.f.keys()))})
 
 def dot(u,v):
     "Returns the dot product of the two vectors"
     assert u.D == v.D
-    pass
+    return sum([getitem(u, ukey) * getitem(v, vkey) for ukey,vkey in zip(sorted(u.D), sorted(v.D))])
 
 def scalar_mul(v, alpha):
     "Returns the scalar-vector product alpha times v"
-    pass
+    return Vec(v.D, {key:alpha*value for key, value in v.f.items()})
 
 def neg(v):
     "Returns the negation of a vector"
-    pass
+    return scalar_mul(v, -1)
 
 ##### NO NEED TO MODIFY BELOW HERE #####
 class Vec:
@@ -88,5 +91,5 @@ class Vec:
         return "Vec(" + str(self.D) + "," + str(self.f) + ")"
 
     def copy(self):
-        "Don't make a new copy of the domain D"
+        "Don't make a copy of the domain D"
         return Vec(self.D, self.f.copy())
