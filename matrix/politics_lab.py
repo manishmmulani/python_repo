@@ -28,8 +28,7 @@ def create_voting_dict():
 
     The lists for each senator should preserve the order listed in voting data. 
     """
-    return dict() 
-    
+    return {str.split()[0] : list(map(int, str.split()[3:])) for str in voting_data} 
 
 ## Task 2
 
@@ -44,7 +43,7 @@ def policy_compare(sen_a, sen_b, voting_dict):
         >>> policy_compare('Fox-Epstein','Ravella', voting_dict)
         -2
     """
-    return 0.0
+    return sum([a*b for a, b in zip(voting_dict[sen_a], voting_dict[sen_b])])
 
 
 ## Task 3
@@ -63,9 +62,8 @@ def most_similar(sen, voting_dict):
 
     Note that you can (and are encouraged to) re-use you policy_compare procedure.
     """
-    
-    return ""
-    
+    return max([(oth_sen, policy_compare(sen, oth_sen, voting_dict)) for oth_sen in voting_dict if oth_sen != sen ], key=lambda x : x[1])[0]
+
 
 ## Task 4
 
@@ -80,14 +78,13 @@ def least_similar(sen, voting_dict):
         >>> least_similar('Klein', vd)
         'Ravella'
     """
-    return ""
-    
+    return min([(oth_sen, policy_compare(sen, oth_sen, voting_dict)) for oth_sen in voting_dict if oth_sen != sen ], key=lambda x : x[1])[0]
     
 
 ## Task 5
 
-most_like_chafee    = ''
-least_like_santorum = '' 
+most_like_chafee    = 'Jeffords'
+least_like_santorum = 'Feingold' 
 
 
 
@@ -102,10 +99,13 @@ def find_average_similarity(sen, sen_set, voting_dict):
         >>> find_average_similarity('Klein', {'Fox-Epstein','Ravella'}, vd)
         -0.5
     """
-    return ...
+    return sum([policy_compare(sen, oth_sen, voting_dict) for oth_sen in sen_set])/len(sen_set)
 
-most_average_Democrat = ... # give the last name (or code that computes the last name)
-
+my_voting_dict = create_voting_dict()
+democrats_set = set(map(lambda x : x[0], filter(lambda x : x[1] == 'D', map(lambda x : tuple(x.split()), voting_data))))
+#sen_democrat_avg_similarity_list = [(sen, find_average_similarity(sen, democrats_set, my_voting_dict)) for sen in my_voting_dict]
+#most_average_democrat = max(sen_democrat_avg_similarity_list, key=lambda x : x[1])[0] #... # give the last name (or code that computes the last name)
+most_average_Democrat = 'Biden'
 
 # Task 7
 
@@ -119,9 +119,9 @@ def find_average_record(sen_set, voting_dict):
         >>> find_average_record({'Fox-Epstein','Ravella'}, voting_dict)
         [-0.5, -0.5, 0.0]
     """
-    return ...
+    return [sum(vecsumtuple)/(1.0 * len(vecsumtuple)) for vecsumtuple in zip(*(voting_dict[sen] for sen in sen_set))]
 
-average_Democrat_record = ... # (give the vector)
+average_Democrat_record = find_average_record(democrats_set, my_voting_dict) # (give the vector)
 
 
 # Task 8
@@ -137,5 +137,6 @@ def bitter_rivals(voting_dict):
         >>> bitter_rivals(voting_dict)
         ('Fox-Epstein', 'Ravella')
     """
-    return (..., ...)
+    result = min([(sen, oth_sen, policy_compare(sen, oth_sen, voting_dict)) for sen in voting_dict for oth_sen in voting_dict if sen != oth_sen], key=lambda x : x[2])
+    return (result[0], result[1])
 
