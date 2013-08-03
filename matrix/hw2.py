@@ -1,8 +1,8 @@
 # version code 761
 # Please fill out this stencil and submit using the provided submission script.
 
-from vec import Vec
-
+from vec import Vec, getitem
+from vecutil import *
 
 
 ## Problem 1
@@ -16,7 +16,7 @@ def vec_select(veclist, k):
     >>> vec_select([v1, v2, v3, v4], 'a') == [Vec(D,{'b': 1}), Vec(D,{'b': 2})]
     True
     '''
-    pass
+    return [v for v in veclist if getitem(v, k) == 0]
 
 def vec_sum(veclist, D): 
     '''
@@ -28,7 +28,7 @@ def vec_sum(veclist, D):
     >>> vec_sum([v1, v2, v3, v4], D) == Vec(D, {'b': 13, 'a': 11})
     True
     '''
-    pass
+    return sum(veclist, zero_vec(D))
 
 def vec_select_sum(veclist, k, D): 
     '''
@@ -40,7 +40,7 @@ def vec_select_sum(veclist, k, D):
     >>> vec_select_sum([v1, v2, v3, v4], 'a', D) == Vec(D, {'b': 3})
     True
     '''
-    pass
+    return vec_sum(vec_select(veclist, k), D)
 
 
 
@@ -52,7 +52,7 @@ def scale_vecs(vecdict):
     >>> scale_vecs({3: v1, 5: v2}) == [Vec({1,2,3},{2: 3.0}), Vec({1,2,4},{1: 0.2, 2: 0.4, 4: 1.6})]
     True
     '''
-    pass
+    return [(1.0/key)*vecdict[key] for key in vecdict]
 
 
 
@@ -73,24 +73,27 @@ def GF2_span(D, L):
     >>> Vec(D, {x:one for x in D}) in GF2_span(D, L)
     True
     '''
-    pass
-
+    #[L[i] for t in range(0, (1<<len(L))) for i in range(0, len(L)) if (t|(1<<i)) > 0]
+    result = []
+    for N in range(0, (1<<len(L))):
+        result.append(vec_sum([L[i] for i in range(0, len(L)) if (N & (1<<i)) > 0], D))
+    return result
 
 
 ## Problem 4
 # Answer with a boolean, please.
 
-is_it_a_vector_space_1 = ...
-is_it_a_vector_space_2 = ...
+is_it_a_vector_space_1 = True
+is_it_a_vector_space_2 = False
 
 
 
 ## Problem 5
-is_it_a_vector_space_3 = ...
-is_it_a_vector_space_4 = ...
+is_it_a_vector_space_3 = True
+is_it_a_vector_space_4 = False
 
 
 ## Problem 6
 
-is_it_a_vector_space_5 = ...
-is_it_a_vector_space_6 = ...
+is_it_a_vector_space_5 = True
+is_it_a_vector_space_6 = False
