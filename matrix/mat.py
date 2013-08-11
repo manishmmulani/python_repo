@@ -3,45 +3,61 @@ from vec import Vec
 def getitem(M, k):
     "Returns the value of entry k in M.  The value of k should be a pair."
     assert k[0] in M.D[0] and k[1] in M.D[1]
-    pass
+    return M.f[k] if k in M.f else 0
 
 def setitem(M, k, val):
     "Sets the element of v with label k to be val.  The value of k should be a pair"
     assert k[0] in M.D[0] and k[1] in M.D[1]
-    pass
+    M.f[k]=val
 
 def add(A, B):
     "Returns the sum of A and B"
     assert A.D == B.D
-    pass
+    return Mat(A.D, {(rowlabel, collabel) : (A[rowlabel, collabel] + B[rowlabel, collabel]) for rowlabel in A.D[0] for collabel in A.D[1]})
 
 def scalar_mul(M, alpha):
     "Returns the product of scalar alpha with M" 
-    pass
+    return Mat(M.D, {(rowlabel, collabel) : alpha * M[rowlabel, collabel] for rowlabel in M.D[0] for collabel in M.D[1]})
 
 def equal(A, B):
     "Returns true iff A is equal to B"
     assert A.D == B.D
-    pass
+    for row in A.D[0]:
+        for col in A.D[1]:
+            if A[row, col] != B[row, col]:
+                return False
+    return True
+
 
 def transpose(M):
     "Returns the transpose of M"
-    pass
+    return Mat((M.D[1], M.D[0]), {(col, row):M[row,col] for row in M.D[0] for col in M.D[1]})
 
 def vector_matrix_mul(v, M):
     "Returns the product of vector v and matrix M"
     assert M.D[0] == v.D
-    pass
+    resultVec = Vec(M.D[1], {})
+    for (p,q),val in M.f.items():
+        resultVec[q] = resultVec[q] + val*v[p]
+    return resultVec
 
 def matrix_vector_mul(M, v):
     "Returns the product of matrix M and vector v"
     assert M.D[1] == v.D
-    pass
+    resultVec = Vec(M.D[0], {})
+    for (p,q),val in M.f.items():
+        resultVec[p] = resultVec[p] + val*v[q]
+    return resultVec
 
 def matrix_matrix_mul(A, B):
     "Returns the product of A and B"
     assert A.D[1] == B.D[0]
-    pass
+    resultMat = Mat((A.D[0], B.D[1]),{})
+    for (arow, acol), aval in A.f.items():
+        for (brow, bcol), bval in B.f.items():
+            if acol == brow:
+                resultMat[arow, bcol] = resultMat[arow, bcol] + aval*bval
+    return resultMat
 
 ################################################################################
 
