@@ -4,6 +4,7 @@
 from GF2 import one
 from math import sqrt, pi
 from matutil import coldict2mat
+from vecutil import list2vec
 from solver import solve
 from vec import Vec
 
@@ -148,9 +149,7 @@ def rep2vec(u, veclist):
         >>> rep2vec(Vec({0,1,2}, {0:2, 1:4, 2:6}), [a0,a1,a2]) == Vec({'a', 'c', 'b', 'd'},{'a': 2, 'c': 6, 'b': 4, 'd': 0})
         True
     '''
-    pass
-
-
+    return coldict2mat(veclist)*u
 
 ## Problem 14
 def vec2rep(veclist, v):
@@ -168,9 +167,7 @@ def vec2rep(veclist, v):
         >>> vec2rep([a0,a1,a2], Vec({'a','b','c','d'}, {'a':3, 'c':-2})) == Vec({0, 1, 2},{0: 3.0, 1: 0.0, 2: -2.0})
         True
     '''
-    pass
-
-
+    return solve(coldict2mat(veclist), v)
 
 ## Problem 15
 def is_superfluous(L, i):
@@ -188,8 +185,6 @@ def is_superfluous(L, i):
         >>> a1 = Vec({'a','b','c','d'}, {'b':1})
         >>> a2 = Vec({'a','b','c','d'}, {'c':1})
         >>> a3 = Vec({'a','b','c','d'}, {'a':1,'c':3})
-        >>> is_superfluous(L, 3)
-        True
         >>> is_superfluous([a0,a1,a2,a3], 3)
         True
         >>> is_superfluous([a0,a1,a2,a3], 0)
@@ -197,9 +192,13 @@ def is_superfluous(L, i):
         >>> is_superfluous([a0,a1,a2,a3], 1)
         False
     '''
-    pass
+    if len(L)<=1:
+        return False
 
-
+    A = coldict2mat([L[index] for index in range(len(L)) if index != i])
+    b = solve(A,L[i])
+    residue = L[i] - A*b
+    return residue*residue < 1e-14    
 
 ## Problem 16
 def is_independent(L):
@@ -224,9 +223,20 @@ def is_independent(L):
     >>> is_independent(vlist[5:])
     True
     '''
-    pass
+    independent=True
+    for i in range(len(L)):
+        if is_superfluous(L,i):
+            independent=False
+            break
+    return independent
 
-
+def GisSpanning(G, S):
+    spanning=True
+    for s in S:
+        if not is_superfluous(G+[s],len(G)):
+            spanning=False
+            break
+    return spanning
 
 ## Problem 17
 def superset_basis(S, L):
@@ -246,9 +256,13 @@ def superset_basis(S, L):
         >>> superset_basis([a0, a3], [a0, a1, a2]) == [Vec({'a', 'c', 'b', 'd'},{'a': 1}), Vec({'a', 'c', 'b', 'd'},{'b':1}),Vec({'a', 'c', 'b', 'd'},{'c': 1})]
         True
     '''
-    pass
-
-
+    G=S.copy()
+    for l in L:
+        if GisSpanning(G,L):
+            return G
+        if is_independent(G+[l]):
+            G.append(l)
+    return G
 
 ## Problem 18
 def exchange(S, A, z):
@@ -265,5 +279,10 @@ def exchange(S, A, z):
         >>> exchange(S, A, z) == Vec({0, 1, 2, 3},{0: 0, 1: 0, 2: 1, 3: 0})
         True
     '''
-    pass
+    SminusA = list(filter(lambda x : x not in A, S))
+    for coeff, vec in zip(vec2rep(S,z),S):
+        if coeff != 0 and vec in SminusA:
+            return vec
+    return None
+
 
