@@ -3,10 +3,13 @@
 
 from vecutil import list2vec
 from solver import solve
-from matutil import listlist2mat, coldict2mat
+from matutil import listlist2mat, coldict2mat, mat2coldict, identity, mat2rowdict
 from mat import Mat
 from GF2 import one
 from vec import Vec
+from hw4 import exchange,is_superfluous,vec2rep
+from independence import rank, is_independent
+from triangular import triangular_solve
 
 
 
@@ -23,8 +26,8 @@ v2 = list2vec([0,3,3])
 # with appropriate lists of 3 vectors
 
 exchange_S0 = [w0, w1, w2]
-exchange_S1 = [...]
-exchange_S2 = [...]
+exchange_S1 = [v0, w1, w2]
+exchange_S2 = [v0, v1, w2]
 exchange_S3 = [v0, v1, v2]
 
 
@@ -39,8 +42,8 @@ v1 = list2vec([one,0,0])
 v2 = list2vec([one,one,0])
 
 exchange_2_S0 = [w0, w1, w2]
-exchange_2_S1 = [...]
-exchange_2_S2 = [...]
+exchange_2_S1 = [v0, w1, w2]
+exchange_2_S2 = [v0, v2, w2]
 exchange_2_S3 = [v0, v1, v2]
 
 
@@ -59,26 +62,29 @@ def morph(S, B):
         >>> B = [list2vec(v) for v in [[1,1,0],[0,1,1],[1,0,1]]]
         >>> morph(S, B)
         [(Vec({0, 1, 2},{0: 1, 1: 1, 2: 0}), Vec({0, 1, 2},{0: 1, 1: 0, 2: 0})), (Vec({0, 1, 2},{0: 0, 1: 1, 2: 1}), Vec({0, 1, 2},{0: 0, 1: 1, 2: 0})), (Vec({0, 1, 2},{0: 1, 1: 0, 2: 1}), Vec({0, 1, 2},{0: 0, 1: 0, 2: 1}))]
-
     '''
-    pass
-
-
+    result=[]
+    for z in B:
+        w=exchange(S,B,z)
+        #S.append(z)
+        #S.remove(w)
+        result.append((z,w))
+    return result
 
 ## Problem 4
 # Please express each solution as a list of vectors (Vec instances)
 
-row_space_1 = [...]
-col_space_1 = [...]
+row_space_1 = [list2vec([1,2,0]),list2vec([0,2,1])]
+col_space_1 = [list2vec([1,0]),list2vec([0,1])]
 
-row_space_2 = [...]
-col_space_2 = [...]
+row_space_2 = [list2vec([1,4,0,0]),list2vec([0,2,2,0]),list2vec([0,0,1,1])]
+col_space_2 = [list2vec([1,0,0]),list2vec([0,2,1]),list2vec([0,0,1])]
 
-row_space_3 = [...]
-col_space_3 = [...]
+row_space_3 = [list2vec([1])]
+col_space_3 = [list2vec([1,2,3])]
 
-row_space_4 = [...]
-col_space_4 = [...]
+row_space_4 = [list2vec([1,0]),list2vec([2,1])]
+col_space_4 = [list2vec([1,2,3]),list2vec([0,1,4])]
 
 
 
@@ -104,8 +110,17 @@ def my_is_independent(L):
     >>> my_is_independent(L[2:5])
     False
     '''
-    pass
+    return rank(L)==len(L)
 
+
+def rec_shrink_basis(S, i):
+    if i == len(S):
+        return S
+    if is_superfluous(S,i):
+        S.pop(i)
+    else:
+        i=i+1
+    return rec_shrink_basis(S,i)
 
 ## Problem 6
 def subset_basis(T): 
@@ -121,9 +136,7 @@ def subset_basis(T):
     >>> subset_basis([a0,a1,a2,a3]) == [Vec({'c', 'b', 'a', 'd'},{'a': 1}), Vec({'c', 'b', 'a', 'd'},{'b': 1}), Vec({'c', 'b', 'a', 'd'},{'c': 1})]
     True
     '''
-    pass
-
-
+    return rec_shrink_basis(T.copy(), 0)
 
 ## Problem 7
 def my_rank(L): 
@@ -134,15 +147,15 @@ def my_rank(L):
     >>> my_rank([list2vec(v) for v in [[1,2,3],[4,5,6],[1.1,1.1,1.1]]])
     2
     '''
-    pass
+    return len(subset_basis(L))
 
 
 ## Problem 8
 # Please give each answer as a boolean
 
-only_share_the_zero_vector_1 = ...
-only_share_the_zero_vector_2 = ...
-only_share_the_zero_vector_3 = ...
+only_share_the_zero_vector_1 = True
+only_share_the_zero_vector_2 = True
+only_share_the_zero_vector_3 = True
 
 
 
@@ -161,9 +174,15 @@ def direct_sum_decompose(U_basis, V_basis, w):
     >>> direct_sum_decompose(U_basis, V_basis, w) == (Vec({0, 1, 2, 3, 4, 5},{0: 2.0, 1: 4.999999999999972, 2: 0.0, 3: 0.0, 4: 1.0, 5: 0.0}), Vec({0, 1, 2, 3, 4, 5},{0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0}))
     True
     '''
-    pass
+    coeffvec = vec2rep(U_basis+V_basis, w)
+    u=list2vec([0,0,0,0,0,0])
+    v=list2vec([0,0,0,0,0,0])
 
-
+    for i in range(len(U_basis)):
+        u=u+coeffvec[i]*U_basis[i]
+    for j in range(len(V_basis)):
+        v=v+coeffvec[j+len(U_basis)]*V_basis[j]
+    return (u,v)
 
 ## Problem 10
 def is_invertible(M): 
@@ -175,7 +194,7 @@ def is_invertible(M):
     >>> is_invertible(M)
     True
     '''
-    pass
+    return len(M.D[0])==len(M.D[1]) and is_independent(list(mat2coldict(M).values()))
 
 
 ## Problem 11
@@ -188,9 +207,9 @@ def find_matrix_inverse(A):
     >>> find_matrix_inverse(M) == Mat(({0, 1, 2}, {0, 1, 2}), {(0, 1): one, (2, 0): 0, (0, 0): 0, (2, 2): one, (1, 0): one, (1, 2): 0, (1, 1): 0, (2, 1): 0, (0, 2): 0})
     True
     '''
-    pass
-
-
+    solution = identity(A.D[0],one)
+    solutionrowdict = mat2rowdict(solution)
+    return coldict2mat({key:solve(A,vec) for key,vec in solutionrowdict.items()})
 
 ## Problem 12
 def find_triangular_matrix_inverse(A): 
@@ -201,4 +220,8 @@ def find_triangular_matrix_inverse(A):
     >>> find_triangular_matrix_inverse(A) == Mat(({0, 1, 2, 3}, {0, 1, 2, 3}), {(0, 1): -0.5, (1, 2): -0.3, (3, 2): 0.0, (0, 0): 1.0, (3, 3): 1.0, (3, 0): 0.0, (3, 1): 0.0, (2, 1): 0.0, (0, 2): -0.05000000000000002, (2, 0): 0.0, (1, 3): -0.87, (2, 3): -0.1, (2, 2): 1.0, (1, 0): 0.0, (0, 3): -3.545, (1, 1): 1.0})
     True
     '''
-    pass
+    solution = identity(A.D[0],1)
+    solutionrowdict = mat2rowdict(solution)
+    Arowveclist = list(mat2rowdict(A).values())
+    label_list = list(range(len(Arowveclist)))
+    return coldict2mat({key:triangular_solve(Arowveclist, label_list, vec) for key,vec in solutionrowdict.items()})
