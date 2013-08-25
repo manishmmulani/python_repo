@@ -9,6 +9,18 @@ from factoring_support import prod
 
 import echelon
 
+## Ungraded Task
+def root_method(N):
+    a = intsqrt(N)
+    if a*a < N:
+        a = a + 1
+
+    while True:
+        b=intsqrt(a*a - N)
+        if b*b == a*a - N:
+            return a-b
+        a=a+1
+
 ## Task 1
 def int2GF2(i):
     '''
@@ -25,7 +37,7 @@ def int2GF2(i):
         >>> int2GF2(100)
         0
     '''
-    pass
+    return one if i%2 else 0
 
 ## Task 2
 def make_Vec(primeset, factors):
@@ -41,7 +53,7 @@ def make_Vec(primeset, factors):
         >>> make_Vec({2,3,11}, [(2,3), (3,2)]) == Vec({2,3,11},{2:one})
         True
     '''
-    pass
+    return Vec(primeset, {p:int2GF2(a) for p,a in factors})
 
 ## Task 3
 def find_candidates(N, primeset):
@@ -58,9 +70,21 @@ def find_candidates(N, primeset):
                    primeset-vector over GF(2) corresponding to a_i
           such that len(roots) = len(rowlist) and len(roots) > len(primeset)
     '''
-    pass
+    roots = []
+    rowlist = []
+    size = len(primeset) + 1
+    t=2
+    count=0
 
-
+    while count < size:
+        a=intsqrt(N)+t
+        factors = dumb_factor(a*a-N, primeset)
+        if len(factors) > 0:
+            roots.append(a)
+            rowlist.append(make_Vec(primeset,factors))
+            count = count + 1
+        t=t+1
+    return (roots, rowlist)
 
 ## Task 4
 def find_a_and_b(v, roots, N):
@@ -74,8 +98,23 @@ def find_a_and_b(v, roots, N):
       such that a*a-b*b is a multiple of N
       (if v is correctly chosen)
     '''
-    pass
+    alist=[roots[i] for i in v.f if v[i] != 0]
+    a = prod(alist)
+    c = prod([x*x-N for x in alist])
+    b = intsqrt(c)
+    assert(b*b == c)
+    return (a,b)
 
 ## Task 5
+#N=2461799993978700679
+#primelist = primes(10000)
+#roots,rowlist = find_candidates(N,primelist)
+#M=echelon.transformation_rows(rowlist)
+#for i in range(len(M)-1,-1,-1):
+#    a,b = find_a_and_b(M[i], roots, N)
+#    print("a : " + str(a) + "\nb : " + str(b))
+#    g = gcd(a-b, N)
+#    if g != 1 and g != N:
+#        print("non trivial divisor : " + str(g))
 
-smallest_nontrivial_divisor_of_2461799993978700679 = ... 
+smallest_nontrivial_divisor_of_2461799993978700679 = 1230926561
